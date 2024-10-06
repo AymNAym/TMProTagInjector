@@ -1,30 +1,30 @@
 using System.Collections.Generic;
-using System.Text;
 using TMPro;
 using UnityEngine;
 
 public class TagInjectorTMPro : TextMeshProUGUI
 {
     [SerializeField] private bool buildOnStart = true;
+    [SerializeField] private bool automaticSpaceBetweenElements = true;
     [SerializeField] private List<TextTagInfos> tagInfos;
 
     protected override void Start()
     {
         base.Start();
         
-        tagInfos.Clear();
+        //tagInfos.Clear();
 
-        var bold = new TextTagInfos
-        {
-            text = "This text is bold"
-        };
-        bold.tags.Add(TagInjector.GetTag(RichTag.Bold));
+        //var bold = new TextTagInfos
+        //{
+        //    text = "This text is bold"
+        //};
+        //bold.tags.Add(TagInjector.GetTag(RichTag.Bold));
 
-        var colorTag = (ColorTag)TagInjector.GetTag(RichTag.Color);
-        colorTag.parameter = Color.green;
-        bold.tags.Add(colorTag);
+        //var colorTag = (ColorTag)TagInjector.GetTag(RichTag.Color);
+        //colorTag.parameter = Color.green;
+        //bold.tags.Add(colorTag);
         
-        tagInfos.Add(bold);
+        //tagInfos.Add(bold);
         
         if (!buildOnStart)
         {

@@ -41,10 +41,10 @@ public static class TagInjector
                 break;
             
             case RichTag.Bold:
-                return new SimpleTag("<b>", "</b>");
+                return new SimpleTag("<b>", "</b>", tagEnum);
             
             case RichTag.Color:
-                return new ColorTag("<color=>", "</color>", Color.white);
+                return new ColorTag("<color=#>", "</color>", tagEnum, Color.white);
             
             case RichTag.CharacterSpacing:
                 break;
@@ -59,7 +59,7 @@ public static class TagInjector
                 break;
             
             case RichTag.Italic:
-                return new SimpleTag("<i>", "</i>");
+                return new SimpleTag("<i>", "</i>", tagEnum);
             
             case RichTag.Indent:
                 break;

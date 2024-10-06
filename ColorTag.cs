@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class ColorTag : ParameterTag<Color>
 {
-    public ColorTag(string openingTag, string closingTag, Color parameter) : base(openingTag, closingTag, parameter)
+    public ColorTag(string openingTag, string closingTag, RichTag richTag, Color parameter) : base(openingTag, closingTag, richTag, parameter)
     {
     }
 

@@ -51,7 +51,6 @@ public class TagInjectorTMProEditor : TMP_EditorPanelUI
             }
             
             result.Add(property);
-            Debug.Log($"Serialized property : {property.displayName}");
         }
         
         result.TrimExcess();
