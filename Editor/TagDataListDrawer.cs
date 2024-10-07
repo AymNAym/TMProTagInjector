@@ -1,31 +1,82 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-//[CustomPropertyDrawer(typeof(TextTagInfos), true)]
-public class TextTagInfosDrawer : PropertyDrawer
+[CustomPropertyDrawer(typeof(TagDataList), true)]
+public class TagDataListDrawer : PropertyDrawer
 {
+    private static float StandardHeight = EditorGUIUtility.singleLineHeight;
     private readonly Dictionary<string, DrawerProperties> _initializedDrawers = new();
     private readonly Dictionary<ReorderableList, GenericMenu> _listMenus = new();
-    private static float StandardHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-    private DrawerProperties Initialize(SerializedProperty property)
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        var properties = GetRelevantProperties(property);
+        properties.height = 0f;
+        position.height = StandardHeight;
+        
+        DrawTagList(ref position, properties, label);
+    }
+    
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    {
+        if(!_initializedDrawers.TryGetValue(property.propertyPath, out var properties))
+        {
+            return base.GetPropertyHeight(property, label);
+        }
+
+        return properties.height;
+    }
+    
+    private void DrawTagList(ref Rect position, DrawerProperties relevantProperties, GUIContent listLabel)
+    {
+        position.y += EditorGUIUtility.standardVerticalSpacing;
+        position.height = StandardHeight;
+
+        var boxRect = new Rect(position);
+        boxRect.x -= 15f;
+        boxRect.width += 15f;
+
+        relevantProperties.tags.isExpanded = EditorGUI.Foldout(position, relevantProperties.tags.isExpanded, listLabel, true, EditorStyles.foldout);
+        
+        position.y += EditorGUIUtility.standardVerticalSpacing;
+        float h = StandardHeight;
+        relevantProperties.height += h;
+
+        if (!relevantProperties.tags.isExpanded)
+        {
+            boxRect.height = h + EditorGUIUtility.standardVerticalSpacing;
+            GUI.Box(boxRect, GUIContent.none, EditorStyles.helpBox);
+            return;
+        }
+
+        position.y += StandardHeight;
+        position.width -= 5f;
+        relevantProperties.editorTagList.DoList(position);
+
+        h += relevantProperties.editorTagList.GetHeight();
+        position.y += h;
+        relevantProperties.height += h + EditorGUIUtility.standardVerticalSpacing;
+        
+        boxRect.height = h + EditorGUIUtility.standardVerticalSpacing * 2;
+        GUI.Box(boxRect, GUIContent.none, EditorStyles.helpBox);
+    }
+
+    private DrawerProperties GetRelevantProperties(SerializedProperty property)
     {
         string drawerKey = property.propertyPath;
         if (_initializedDrawers.TryGetValue(drawerKey, out var properties))
         {
             return properties;
         }
-
+        
         var drawerProperties = new DrawerProperties
         {
-            tags = property.FindPropertyRelative(TextTagInfos.TagsProperty),
-            text = property.FindPropertyRelative(TextTagInfos.TextProperty),
+            tags = property.FindPropertyRelative(TagDataList.TagsProperty),
         };
-
+        
         drawerProperties.editorTagList = new ReorderableList(drawerProperties.tags.serializedObject, drawerProperties.tags, true, true, true, true);
         drawerProperties.editorTagList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
         {
@@ -35,7 +86,7 @@ public class TextTagInfosDrawer : PropertyDrawer
             }
 
             var tagProperty = drawerProperties.tags.GetArrayElementAtIndex(index);
-            var tagData = ((TagData)tagProperty.managedReferenceValue);
+            var tagData = (TagData)tagProperty.managedReferenceValue;
 
             if(tagData == null)
             {
@@ -77,7 +128,7 @@ public class TextTagInfosDrawer : PropertyDrawer
             }
 
             var tagProperty = drawerProperties.tags.GetArrayElementAtIndex(index);
-            var tagData = ((TagData)tagProperty.managedReferenceValue);
+            var tagData = (TagData)tagProperty.managedReferenceValue;
 
             if(tagData == null)
             {
@@ -108,7 +159,7 @@ public class TextTagInfosDrawer : PropertyDrawer
         _initializedDrawers.Add(property.propertyPath, drawerProperties);
         return drawerProperties;
     }
-
+    
     private GenericMenu InitializeMenu(ReorderableList list, SerializedProperty realList)
     {
         if(_listMenus.TryGetValue(list, out var initializeMenu))
@@ -151,81 +202,7 @@ public class TextTagInfosDrawer : PropertyDrawer
             tagsProperty.DeleteArrayElementAtIndex(index);
         }
     }
-
-
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    {
-        var properties = Initialize(property);
-        properties.height = 0f;
-        position.height = StandardHeight;
-
-        property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, label, true);
-
-        properties.height += StandardHeight;
-        position.y += StandardHeight;
-
-        if (!property.isExpanded)
-        {
-            return;
-        }
-
-        DrawStandardProperty(ref position, properties.text, properties);
-        //DrawStandardProperty(ref position, properties.tags, properties);
-        DrawTagList(ref position, properties);
-    }
-
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        if(!_initializedDrawers.TryGetValue(property.propertyPath, out var properties))
-        {
-            return base.GetPropertyHeight(property, label);
-        }
-
-        return properties.height;
-    }
-
-    private void DrawStandardProperty(ref Rect position, SerializedProperty property, DrawerProperties relevantProperties)
-    {
-        float h = EditorGUI.GetPropertyHeight(property);
-        position.y += EditorGUIUtility.standardVerticalSpacing;
-        position.height = h;
-
-        EditorGUI.PropertyField(position, property);
-
-        position.y += h;
-        relevantProperties.height += h + EditorGUIUtility.standardVerticalSpacing;
-    }
-
-    private void DrawTagList(ref Rect position, DrawerProperties relevantProperties)
-    {
-        position.y += EditorGUIUtility.standardVerticalSpacing;
-        position.height = StandardHeight;
-        
-        position.x -= 20f;
-        position.width += 20f;
-        GUI.Box(position, GUIContent.none, EditorStyles.helpBox);
-        position.x += 20f;
-        position.width -= 20f;
-        
-        relevantProperties.tags.isExpanded = EditorGUI.Foldout(position, relevantProperties.tags.isExpanded, relevantProperties.tags.displayName, true, EditorStyles.foldout);
-        
-        position.y += EditorGUIUtility.standardVerticalSpacing;
-        float h = StandardHeight;
-        relevantProperties.height += h;
-
-        if (!relevantProperties.tags.isExpanded)
-        {
-            return;
-        }
-
-        position.y += StandardHeight;
-        relevantProperties.editorTagList.DoList(position);
-
-        h += relevantProperties.editorTagList.GetHeight();
-        position.y += h;
-        relevantProperties.height += h + EditorGUIUtility.standardVerticalSpacing;
-    }
-
+    
     private class DrawerProperties
     {
         public float height;
@@ -233,9 +210,8 @@ public class TextTagInfosDrawer : PropertyDrawer
         public string displayName;
 
         public SerializedProperty tags;
-        public SerializedProperty text;
     }
-
+    
     private class ListDescriptor
     {
         public SerializedProperty listProperty;

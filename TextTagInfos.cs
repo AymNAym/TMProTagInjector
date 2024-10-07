@@ -14,9 +14,9 @@ public class TextTagInfos
 #endif
     #endregion
 
+    public List<TagData> Tags => tags.value;
 
-    [SerializeReference]
-    public List<TagData> tags = new();
+    [SerializeField] private TagDataList tags = new();
     [TextArea(2,4)]
     public string text = string.Empty;
 }

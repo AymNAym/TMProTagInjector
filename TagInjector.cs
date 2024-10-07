@@ -5,23 +5,39 @@ using UnityEngine;
 
 public static class TagInjector
 {
-    public static StringBuilder BuildText(List<TextTagInfos> tagInfos)
+    public static StringBuilder BuildText(List<TextTagInfos> tagInfos, TagDataList globalTags, bool automaticSpace)
     {
         StringBuilder sb = new StringBuilder();
+        int index = 0;
+
+        foreach (var tag in globalTags.value)
+        {
+            sb.Append(tag.OpeningTag);
+        }
         
         foreach (var tagInfo in tagInfos)
         {
-            foreach (var tag in tagInfo.tags)
+            foreach (var tag in tagInfo.Tags)
             {
                 sb.Append(tag.OpeningTag);
             }
 
+            if (automaticSpace && index > 0 && !tagInfos[index - 1].text.EndsWith(' ') && !tagInfo.text.StartsWith(' '))
+            {
+                sb.Append(" ");
+            }
             sb.Append(tagInfo.text);
+            index++;
             
-            foreach (var tag in tagInfo.tags)
+            foreach (var tag in tagInfo.Tags)
             {
                 sb.Append(tag.ClosingTag);
             }
+        }
+        
+        foreach (var tag in globalTags.value)
+        {
+            sb.Append(tag.ClosingTag);
         }
 
         return sb;

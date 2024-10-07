@@ -16,12 +16,10 @@ public class TagTextProfile : ScriptableObject
     {
         var e = new TextTagInfos
         {
-            text = "Hello",
-            tags = new List<TagData>()
+            text = "Hello"
         };
 
-        e.tags.Add(TagInjector.GetTag(RichTag.Color));
-
+        e.Tags.Add(TagInjector.GetTag(RichTag.Color));
         tagInfos.Add(e);
     }
 }
