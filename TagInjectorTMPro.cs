@@ -6,8 +6,8 @@ public class TagInjectorTMPro : TextMeshProUGUI
 {
     [SerializeField] private bool buildOnStart = true;
     [SerializeField] private bool automaticSpaceBetweenElements = true;
-    [SerializeField] private TagDataList globalTags;
-    [SerializeField] private List<TextTagInfos> tagInfos;
+    [SerializeField] private TagDataList globalTags = new();
+    [SerializeField] private List<TextTagInfos> tagInfos = new();
 
     protected override void Start()
     {
