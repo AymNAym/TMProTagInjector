@@ -5,10 +5,9 @@ using UnityEngine;
 
 public static class TagInjector
 {
-    public static StringBuilder BuildText(List<TextTagInfos> tagInfos, TagDataList globalTags, bool automaticSpace)
+    public static StringBuilder BuildText(List<TextTagInfos> tagInfos, TagDataList globalTags)
     {
         StringBuilder sb = new StringBuilder();
-        int index = 0;
 
         foreach (var tag in globalTags.value)
         {
@@ -21,13 +20,8 @@ public static class TagInjector
             {
                 sb.Append(tag.OpeningTag);
             }
-
-            if (automaticSpace && index > 0 && !tagInfos[index - 1].text.EndsWith(' ') && !tagInfo.text.StartsWith(' '))
-            {
-                sb.Append(" ");
-            }
+            
             sb.Append(tagInfo.text);
-            index++;
             
             foreach (var tag in tagInfo.Tags)
             {
@@ -80,6 +74,9 @@ public static class TagInjector
             case RichTag.Indent:
                 return new PercentageTag("<indent=>", "</indent>", tagEnum, 10f);
             
+            case RichTag.LineBreak:
+                return new SimpleTag("<br>", "", tagEnum);
+            
             case RichTag.LineHeight:
                 return new PercentageTag("<line-height=>", "</line-height>", tagEnum, 100f);
             
@@ -131,22 +128,28 @@ public static class TagInjector
                 return new EmSpaceTag("<space=>", "<space=0em>", tagEnum, 2);
                 
             case RichTag.Sprite:
+                return new SpriteTag("", "", tagEnum, new SpriteTagSettings());
                 
             case RichTag.Style:
+                return new StringTag("<style=>", "</style>", tagEnum, "");
                 
             case RichTag.Subscript:
+                return new SimpleTag("<sub>", "</sub>", tagEnum);
                 
             case RichTag.Superscript:
+                return new SimpleTag("<sup>", "</sup>", tagEnum);
                 
             case RichTag.Underline:
+                return new SimpleTag("<u>", "</u>", tagEnum);
                 
             case RichTag.Uppercase:
+                return new SimpleTag("<uppercase>", "</uppercase>", tagEnum);
                 
             case RichTag.VerticalOffset:
+                return new EmSpaceTag("<voffset=>", "</voffset>", tagEnum, 2);
                 
             case RichTag.TextWidth:
-                
-                break;
+                return new PercentageTag("<width=>", "</width>", tagEnum, 100f);
         }
         
         throw new ArgumentOutOfRangeException(nameof(tagEnum), tagEnum, null);

@@ -140,7 +140,8 @@ public class TagDataListDrawer : PropertyDrawer
                 return StandardHeight;
             }
 
-            return tagProperty.isExpanded ? 2 * StandardHeight : StandardHeight;
+            return tagProperty.isExpanded ? StandardHeight + EditorGUI.GetPropertyHeight(tagProperty.FindPropertyRelative(tagData.ParameterProperty())) : StandardHeight;
+            //return tagProperty.isExpanded ? 2 * StandardHeight : StandardHeight;
         };
 
         drawerProperties.editorTagList.headerHeight = 0f;
